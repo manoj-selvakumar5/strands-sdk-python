@@ -41,6 +41,10 @@ Strands Agents is a simple yet powerful SDK that takes a model-driven approach t
 - **Advanced Capabilities**: Multi-agent systems, autonomous agents, and streaming support
 - **Built-in MCP**: Native support for Model Context Protocol (MCP) servers, enabling access to thousands of pre-built tools
 
+## What's New
+
+See [LATEST_FEATURES.md](LATEST_FEATURES.md) for the newest features including async generator tools, multi-agent orchestrators (Swarm & Graph), session persistence, VPC endpoint support, and enhanced MCP capabilities.
+
 ## Quick Start
 
 ```bash
