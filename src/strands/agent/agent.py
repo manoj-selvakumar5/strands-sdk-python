@@ -425,7 +425,7 @@ class Agent:
             **kwargs: Additional parameters to pass through the event loop.
 
         Returns:
-            Result object containing:
+            Result: object containing:
 
                 - stop_reason: Why the event loop stopped (e.g., "end_turn", "max_tokens")
                 - message: The final message from the model
@@ -547,12 +547,12 @@ class Agent:
 
         Yields:
             An async iterator that yields events. Each event is a dictionary containing
-            information about the current state of processing, such as:
+               information about the current state of processing, such as:
 
-            - data: Text content being generated
-            - complete: Whether this is the final chunk
-            - current_tool_use: Information about tools being executed
-            - And other event data provided by the callback handler
+                - data: Text content being generated
+                - complete: Whether this is the final chunk
+                - current_tool_use: Information about tools being executed
+                - And other event data provided by the callback handler
 
         Raises:
             Exception: Any exceptions from the agent invocation will be propagated to the caller.
