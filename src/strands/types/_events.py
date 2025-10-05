@@ -169,6 +169,14 @@ class ReasoningTextStreamEvent(ModelStreamEvent):
         super().__init__({"reasoningText": reasoning_text, "delta": delta, "reasoning": True})
 
 
+class ReasoningRedactedContentStreamEvent(ModelStreamEvent):
+    """Event emitted during redacted content streaming."""
+
+    def __init__(self, delta: ContentBlockDelta, redacted_content: bytes | None) -> None:
+        """Initialize with delta and redacted content."""
+        super().__init__({"reasoningRedactedContent": redacted_content, "delta": delta, "reasoning": True})
+
+
 class ReasoningSignatureStreamEvent(ModelStreamEvent):
     """Event emitted during reasoning signature streaming."""
 
@@ -288,6 +296,29 @@ class ToolStreamEvent(TypedEvent):
     def tool_use_id(self) -> str:
         """The toolUseId associated with this stream."""
         return cast(str, cast(ToolUse, cast(dict, self.get("tool_stream_event")).get("tool_use")).get("toolUseId"))
+
+
+class ToolCancelEvent(TypedEvent):
+    """Event emitted when a user cancels a tool call from their BeforeToolCallEvent hook."""
+
+    def __init__(self, tool_use: ToolUse, message: str) -> None:
+        """Initialize with tool streaming data.
+
+        Args:
+            tool_use: Information about the tool being cancelled
+            message: The tool cancellation message
+        """
+        super().__init__({"tool_cancel_event": {"tool_use": tool_use, "message": message}})
+
+    @property
+    def tool_use_id(self) -> str:
+        """The id of the tool cancelled."""
+        return cast(str, cast(ToolUse, cast(dict, self.get("tool_cancelled_event")).get("tool_use")).get("toolUseId"))
+
+    @property
+    def message(self) -> str:
+        """The tool cancellation message."""
+        return cast(str, self["message"])
 
 
 class ModelMessageEvent(TypedEvent):

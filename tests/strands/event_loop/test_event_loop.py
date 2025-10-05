@@ -6,13 +6,12 @@ import pytest
 
 import strands
 import strands.telemetry
-from strands.experimental.hooks import (
-    AfterModelInvocationEvent,
-    AfterToolInvocationEvent,
-    BeforeModelInvocationEvent,
-    BeforeToolInvocationEvent,
+from strands.hooks import (
+    AfterModelCallEvent,
+    BeforeModelCallEvent,
+    HookRegistry,
+    MessageAddedEvent,
 )
-from strands.hooks import HookRegistry
 from strands.telemetry.metrics import EventLoopMetrics
 from strands.tools.executors import SequentialToolExecutor
 from strands.tools.registry import ToolRegistry
@@ -117,14 +116,7 @@ def hook_registry():
 
 @pytest.fixture
 def hook_provider(hook_registry):
-    provider = MockHookProvider(
-        event_types=[
-            BeforeToolInvocationEvent,
-            AfterToolInvocationEvent,
-            BeforeModelInvocationEvent,
-            AfterModelInvocationEvent,
-        ]
-    )
+    provider = MockHookProvider(event_types="all")
     hook_registry.add_hook(provider)
     return provider
 
@@ -842,26 +834,31 @@ async def test_event_loop_cycle_exception_model_hooks(mock_sleep, agent, model, 
 
     count, events = hook_provider.get_events()
 
-    assert count == 8
+    assert count == 9
 
     # 1st call - throttled
-    assert next(events) == BeforeModelInvocationEvent(agent=agent)
-    assert next(events) == AfterModelInvocationEvent(agent=agent, stop_response=None, exception=exception)
+    assert next(events) == BeforeModelCallEvent(agent=agent)
+    assert next(events) == AfterModelCallEvent(agent=agent, stop_response=None, exception=exception)
 
     # 2nd call - throttled
-    assert next(events) == BeforeModelInvocationEvent(agent=agent)
-    assert next(events) == AfterModelInvocationEvent(agent=agent, stop_response=None, exception=exception)
+    assert next(events) == BeforeModelCallEvent(agent=agent)
+    assert next(events) == AfterModelCallEvent(agent=agent, stop_response=None, exception=exception)
 
     # 3rd call - throttled
-    assert next(events) == BeforeModelInvocationEvent(agent=agent)
-    assert next(events) == AfterModelInvocationEvent(agent=agent, stop_response=None, exception=exception)
+    assert next(events) == BeforeModelCallEvent(agent=agent)
+    assert next(events) == AfterModelCallEvent(agent=agent, stop_response=None, exception=exception)
 
     # 4th call - successful
-    assert next(events) == BeforeModelInvocationEvent(agent=agent)
-    assert next(events) == AfterModelInvocationEvent(
+    assert next(events) == BeforeModelCallEvent(agent=agent)
+    assert next(events) == AfterModelCallEvent(
         agent=agent,
-        stop_response=AfterModelInvocationEvent.ModelStopResponse(
+        stop_response=AfterModelCallEvent.ModelStopResponse(
             message={"content": [{"text": "test text"}], "role": "assistant"}, stop_reason="end_turn"
         ),
         exception=None,
+    )
+
+    # Final message
+    assert next(events) == MessageAddedEvent(
+        agent=agent, message={"content": [{"text": "test text"}], "role": "assistant"}
     )

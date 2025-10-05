@@ -4,10 +4,10 @@ from unittest.mock import MagicMock
 import pytest
 
 import strands
-from strands.experimental.hooks import AfterToolInvocationEvent, BeforeToolInvocationEvent
+from strands.hooks import AfterToolCallEvent, BeforeToolCallEvent
 from strands.telemetry.metrics import Trace
 from strands.tools.executors._executor import ToolExecutor
-from strands.types._events import ToolResultEvent, ToolStreamEvent
+from strands.types._events import ToolCancelEvent, ToolResultEvent, ToolStreamEvent
 from strands.types.tools import ToolUse
 
 
@@ -50,13 +50,13 @@ async def test_executor_stream_yields_result(
 
     tru_hook_events = hook_events
     exp_hook_events = [
-        BeforeToolInvocationEvent(
+        BeforeToolCallEvent(
             agent=agent,
             selected_tool=weather_tool,
             tool_use=tool_use,
             invocation_state=invocation_state,
         ),
-        AfterToolInvocationEvent(
+        AfterToolCallEvent(
             agent=agent,
             selected_tool=weather_tool,
             tool_use=tool_use,
@@ -153,7 +153,7 @@ async def test_executor_stream_yields_tool_error(
     assert tru_results == exp_results
 
     tru_hook_after_event = hook_events[-1]
-    exp_hook_after_event = AfterToolInvocationEvent(
+    exp_hook_after_event = AfterToolCallEvent(
         agent=agent,
         selected_tool=exception_tool,
         tool_use=tool_use,
@@ -180,7 +180,7 @@ async def test_executor_stream_yields_unknown_tool(executor, agent, tool_results
     assert tru_results == exp_results
 
     tru_hook_after_event = hook_events[-1]
-    exp_hook_after_event = AfterToolInvocationEvent(
+    exp_hook_after_event = AfterToolCallEvent(
         agent=agent,
         selected_tool=None,
         tool_use=tool_use,
@@ -215,3 +215,38 @@ async def test_executor_stream_with_trace(
 
     cycle_trace.add_child.assert_called_once()
     assert isinstance(cycle_trace.add_child.call_args[0][0], Trace)
+
+
+@pytest.mark.parametrize(
+    ("cancel_tool", "cancel_message"),
+    [(True, "tool cancelled by user"), ("user cancel message", "user cancel message")],
+)
+@pytest.mark.asyncio
+async def test_executor_stream_cancel(
+    cancel_tool, cancel_message, executor, agent, tool_results, invocation_state, alist
+):
+    def cancel_callback(event):
+        event.cancel_tool = cancel_tool
+        return event
+
+    agent.hooks.add_callback(BeforeToolCallEvent, cancel_callback)
+    tool_use: ToolUse = {"name": "weather_tool", "toolUseId": "1", "input": {}}
+
+    stream = executor._stream(agent, tool_use, tool_results, invocation_state)
+
+    tru_events = await alist(stream)
+    exp_events = [
+        ToolCancelEvent(tool_use, cancel_message),
+        ToolResultEvent(
+            {
+                "toolUseId": "1",
+                "status": "error",
+                "content": [{"text": cancel_message}],
+            },
+        ),
+    ]
+    assert tru_events == exp_events
+
+    tru_results = tool_results
+    exp_results = [exp_events[-1].tool_result]
+    assert tru_results == exp_results

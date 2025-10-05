@@ -42,7 +42,8 @@ dependencies = [
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.21.0,<1.0.0"]
-litellm = ["litellm>=1.75.9,<2.0.0", "openai>=1.68.0,<1.108.0"]
+gemini = ["google-genai>=1.32.0,<2.0.0"]
+litellm = ["litellm>=1.75.9,<2.0.0", "openai>=1.68.0,<1.110.0"]
 llamaapi = ["llama-api-client>=0.1.0,<1.0.0"]
 mistral = ["mistralai>=1.8.2"]
 ollama = ["ollama>=0.4.8,<1.0.0"]
@@ -54,9 +55,9 @@ sagemaker = [
 ]
 otel = ["opentelemetry-exporter-otlp-proto-http>=1.30.0,<2.0.0"]
 docs = [
-    "sphinx>=5.0.0,<6.0.0",
+    "sphinx>=5.0.0,<9.0.0",
     "sphinx-rtd-theme>=1.0.0,<2.0.0",
-    "sphinx-autodoc-typehints>=1.12.0,<2.0.0",
+    "sphinx-autodoc-typehints>=1.12.0,<4.0.0",
 ]
 
 a2a = [
@@ -67,7 +68,7 @@ a2a = [
     "fastapi>=0.115.12,<1.0.0",
     "starlette>=0.46.2,<1.0.0",
 ]
-all = ["strands-agents[a2a,anthropic,docs,litellm,llamaapi,mistral,ollama,openai,writer,sagemaker,otel]"]
+all = ["strands-agents[a2a,anthropic,docs,gemini,litellm,llamaapi,mistral,ollama,openai,writer,sagemaker,otel]"]
 
 dev = [
     "commitizen>=4.4.0,<5.0.0",
@@ -77,7 +78,7 @@ dev = [
     "pre-commit>=3.2.0,<4.4.0",
     "pytest>=8.0.0,<9.0.0",
     "pytest-cov>=7.0.0,<8.0.0",
-    "pytest-asyncio>=1.0.0,<1.2.0",
+    "pytest-asyncio>=1.0.0,<1.3.0",
     "pytest-xdist>=3.0.0,<4.0.0",
     "ruff>=0.13.0,<0.14.0",
 ]
@@ -130,7 +131,7 @@ extra-args = ["-n", "auto", "-vv"]
 dependencies = [
     "pytest>=8.0.0,<9.0.0",
     "pytest-cov>=7.0.0,<8.0.0",
-    "pytest-asyncio>=1.0.0,<1.2.0",
+    "pytest-asyncio>=1.0.0,<1.3.0",
     "pytest-xdist>=3.0.0,<4.0.0",
     "moto>=5.1.0,<6.0.0",
 ]
@@ -169,7 +170,8 @@ test = "hatch test {args}"
 test-integ = "hatch test tests_integ {args}"
 
 prepare = [
-    "hatch run test-format",
+    "hatch run format",
+    "hatch run lint",
     "hatch run test-lint",
     "hatch test --all"
 ]
