@@ -2,10 +2,65 @@
 
 This document tracks the newest features added to the Strands Python SDK, organized by month.
 
+## October 2025
+
+### Telemetry & Observability
+- **OTEL v1.37 semantic conventions** - Updated traces to match OpenTelemetry v1.37 semantic conventions for better observability (#952)
+- **Event serialization fix** - Removed double serialization for events in telemetry pipeline (#977)
+
+### Hooks & Events System
+- **Tool call cancellation** - Before tool call event can now cancel tool execution for better control flow (#964)
+
+### Session Management
+- **Concurrent message reading** - Implemented concurrent message reading for session managers improving performance (#897)
+
+### Event Loop
+- **Model execution handling** - Enhanced event loop to better handle model execution (#958)
+
+### Model Providers
+- **Gemini asyncio fixes** - Fixed event loop closed error from Gemini asyncio operations (#932, #955)
+- **OpenAI error handling** - Improved error handling for OpenAI models (#918)
+
+### MCP (Model Context Protocol)
+- **Timeout issue fixes** - Fixed MCP timeout issues for more reliable connections (#922)
+- **Idempotent instrumentation** - Made MCP instrumentation idempotent to prevent recursion errors (#892)
+
+### Tool System
+- **Concurrent executor optimization** - Removed no-op gather in concurrent tool executor for better performance (#954)
+
 ## September 2025
 
-### Async Generator Tools
+### Model Provider Expansion
+- **Gemini model provider** - Support for Google's Gemini AI models with full feature compatibility (#725)
+- **llama.cpp model provider** - Native support for llama.cpp models with local inference capabilities (#585)
+
+### Hooks & Events System
+- **Stable hooks API** - ModelCall and ToolCall events marked as non-experimental with improved naming (BeforeModelCallEvent, AfterModelCallEvent, BeforeToolCallEvent, AfterToolCallEvent) (#926)
+- **MultiAgent HookEvent base class** - New base class for multi-agent hook events enabling better event inheritance (#925)
+
+### Tool System
+- **Tool hot reload support** - Added `supports_hot_reload` property to PythonAgentTool for dynamic tool reloading (#928)
+- **Output schema support** - Optional outputSchema support for tool specifications enabling structured tool responses (#818)
 - **Async generator tools** - Full async support for tool generators, enabling streaming and long-running operations (#788)
+
+### Bedrock Model Enhancements
+- **Region-aware default model IDs** - Automatic model ID formatting based on AWS region with fallback warnings (#835)
+- **ToolChoice for structured output** - Bedrock and Anthropic ToolChoice support in structured_output for forced tool calls (#720)
+- **Default read timeout** - Configurable 120-second default read timeout for Bedrock model calls (#829)
+- **Decoupled ContentBlock handling** - Improved separation between Strands ContentBlock and BedrockModel implementations (#836)
+- **Redacted content handling** - Support for handling redacted reasoning content in Bedrock streaming responses (#848)
+
+### Swarm Orchestrator
+- **Configurable entry point** - Make swarm entry point configurable for flexible agent workflow initialization (#851)
+
+### Observability & Telemetry
+- **Cache usage metrics** - OpenTelemetry span attributes for cache read/write input tokens enabling cost monitoring (#825)
+
+### Structured Output
+- **Improved circular reference handling** - Enhanced detection and handling of circular references in structured output schemas (#817)
+
+### Developer Experience
+- **Model configuration validation** - Warnings emitted for unknown model configuration properties across all providers (#819)
 
 ## August 2025
 
@@ -28,7 +83,7 @@ This document tracks the newest features added to the Strands Python SDK, organi
 
 ### MCP (Model Context Protocol) Enhancements
 - **MCP async call tool** - Async support for MCP tool execution (#406)
-- **List prompts and get prompt methods** - Enhanced MCP client capabilities for prompt management (#160)
+- **List prompts and get prompt methods*3* - Enhanced MCP client capabilities for prompt management (#160)
 - **Pagination for list_tools_sync** - Improved handling of large tool sets (#436)
 - **Structured content retention** - Retain structured content in AgentTool responses (#528)
 
